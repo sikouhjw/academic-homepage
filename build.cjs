@@ -86,12 +86,18 @@ function actions(item) {
 }
 function build() {
   const grouped = GROUPS.map(([kind,heading])=>[kind,heading,items.filter(i=>cat(i)===kind).sort((a,b)=>sortDate(b)-sortDate(a)||String(a.title||'').localeCompare(String(b.title||'')))]);
-  let n=items.length;
   const output=grouped.map(([kind,heading,subset])=>{
     if(!subset.length) return '';
-    const rows=subset.map(item=>{
+    const rows=subset.map((item, index)=>{
+      const n = subset.length - index;
       const text = ['patent','software'].includes(kind) ? specialText(item,meta[item.id]||{},kind):ieeeText(item);
-      return `<article class="pub"><span class="pub-number">[${n--}]</span><div class="pub-body"><div class="pub-citation">${text}</div><div class="pub-links">${actions(item)}</div></div></article>`;
+      return `<article class="pub">
+        <span class="pub-number">[${n}]</span>
+        <div class="pub-body">
+          <div class="pub-citation">${text}</div>
+          <div class="pub-links">${actions(item)}</div>
+        </div>
+      </article>`;
     }).join('\n');
     return `<h3>${esc(heading)}</h3>\n${rows}`;
   }).join('\n');

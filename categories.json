@@ -7,5 +7,9 @@
   },
   "He2024Thesis": {
     "type": "thesis"
+  },
+  "gdut2023latex": {
+    "type": "software",
+    "number": "2022SR1134390"
   }
 }
