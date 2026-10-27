@@ -1,5 +1,5 @@
 :root {
-  --body-font: Georgia, "Times New Roman", "Noto Serif", serif;
+  --body-font: "Times New Roman", "Noto Serif", serif;
   --heading-font: Arial, "Helvetica Neue", sans-serif;
   --text: #263342;
   --muted: #64748b;
