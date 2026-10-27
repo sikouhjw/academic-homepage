@@ -7,10 +7,5 @@
   },
   "He2024Thesis": {
     "type": "thesis"
-  },
-  "ExampleSoftware2025": {
-    "type": "software",
-    "number": "2025SR0000000",
-    "holders": "A. Author"
   }
 }
