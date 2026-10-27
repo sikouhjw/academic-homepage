@@ -278,15 +278,31 @@ footer {
   }
 }
 
-@media (max-width: 400px) {
+@media (max-width: 650px) {
   .profile {
-    flex-direction: column-reverse;
+    flex-direction: row;
     align-items: flex-start;
+    gap: 12px;
+  }
+
+  .profile-info {
+    flex: 1;
+    min-width: 0;
   }
 
   .profile-photo {
-    width: 120px;
-    height: 150px;
+    width: 90px;
+    height: 113px;
+    flex-shrink: 0;
+  }
+
+  .profile h1 {
+    font-size: 1.5rem;
+    line-height: 1.25;
+  }
+
+  .profile .contacts {
+    gap: 8px 12px;
   }
 }
 
