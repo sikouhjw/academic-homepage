@@ -289,3 +289,59 @@ footer {
     height: 150px;
   }
 }
+
+/* Education */
+.education {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-top: 22px;
+}
+
+.education-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.school-logo {
+  width: 42px;
+  height: 42px;
+  object-fit: contain;
+  flex-shrink: 0;
+}
+
+.education-info {
+  min-width: 0;
+  line-height: 1.45;
+}
+
+.school-name {
+  font-size: 0.9rem;
+  font-weight: 600;
+}
+
+.degree {
+  font-size: 0.82rem;
+  color: var(--muted);
+}
+
+/* Mobile */
+@media (max-width: 650px) {
+  .school-logo {
+    width: 34px;
+    height: 34px;
+  }
+
+  .education-item {
+    gap: 9px;
+  }
+
+  .school-name {
+    font-size: 0.82rem;
+  }
+
+  .degree {
+    font-size: 0.75rem;
+  }
+}
