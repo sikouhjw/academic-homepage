@@ -1,9 +1,9 @@
 {
-  "ExampleJournal2026": {
-    "pdf": "https://example.com/example-paper.pdf",
-    "code": "https://github.com/example/example-code"
+  "he2023yizhongjiyu": {
+    "arXiv": "https://arxiv.org/abs/2309.11759",
+    "WOS": "https://webofscience.clarivate.cn/wos/alldb/full-record/WOS:001167360100001"
   },
-  "ExampleConference2025": {
-    "project": "https://example.com/research-project"
+  "何骏炜2024无线传输新技术下的近似消息传递估计方法研究": {
+    "doi": "10.27029/d.cnki.ggdgu.2024.000995"
   }
 }

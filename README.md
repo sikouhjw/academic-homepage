@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # Academic Homepage
 
 Minimal academic website for GitHub Pages with BibTeX and Citation.js.
@@ -20,3 +21,7 @@ Sample DOIs and links are **fictional placeholders**, not real papers.
 Citation.js uses a pinned CDN version: 0.7.20. It requires an internet connection to the CDN when the page is loaded. If blocked, download and host the bundle locally.
 
 To preview locally, serve the directory using a static HTTP server; opening index.html via file:// will block fetch in many browsers. No local setup is needed to publish through GitHub.
+=======
+# academic-homepage
+My academic homepage
+>>>>>>> 2bc719c125653303650c7be4abd4f5c9beb6ec47
