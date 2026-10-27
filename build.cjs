@@ -64,18 +64,8 @@ function person(p) {
 }
 
 function firstNames(item) {
-  const names = (item.author || []).map(p => {
-    const name = person(p);
-    const normalized = name.replace(/\s+/g, ' ').trim();
-
-    const isMine = MY_NAMES.some(
-      n => n.toLowerCase() === normalized.toLowerCase()
-    );
-
-    const safeName = esc(name);
-
-    return isMine ? `<strong>${safeName}</strong>` : safeName;
-  });
+  const names = (item.author || [])
+    .map(p => highlightName(person(p)));
 
   if (names.length <= 1) return names.join('');
   if (names.length === 2) return names.join(' and ');
@@ -159,17 +149,28 @@ function ieeeText(item) {
     .replace(/(<div[^>]*class="[^"]*csl-entry[^"]*"[^>]*>)\s*1\.\s*/, '$1');
 }
 
+function highlightName(name) {
+  const normalized = name.replace(/\s+/g, ' ').trim();
+
+  const isMine = MY_NAMES.some(
+    n => n.toLowerCase() === normalized.toLowerCase()
+  );
+
+  const safeName = esc(name);
+
+  return isMine ? `<strong>${safeName}</strong>` : safeName;
+}
+
 function specialText(item, extra, type) {
   const title = esc(extra.title || item.title || '');
-  const names = esc(
-    extra.holders
-      ? extra.holders
-          .split(/\s+and\s+|[,，、]/i)
-          .map(s => s.trim())
-          .filter(Boolean)
-          .join(', ')
-      : firstNames(item)
-  );
+  const names = extra.holders
+    ? extra.holders
+        .split(/\s+and\s+|[,，、]/i)
+        .map(s => s.trim())
+        .filter(Boolean)
+        .map(highlightName)
+        .join(', ')
+    : firstNames(item);
 
   const year = String(
     extra.year || rawDate(item)[0] || ''

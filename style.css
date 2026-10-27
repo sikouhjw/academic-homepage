@@ -1,6 +1,6 @@
 :root {
-  --body-font: Arial, "思源黑体", "微软雅黑", sans-serif;
-  --heading-font: Arial, "思源黑体", "微软雅黑", sans-serif;
+  --body-font: "思源黑体", Arial, "微软雅黑", sans-serif;
+  --heading-font: "思源黑体", Arial, "微软雅黑", sans-serif;
   --text: #263342;
   --muted: #64748b;
   --accent: #205b91;
