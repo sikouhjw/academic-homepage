@@ -21,7 +21,17 @@ const GROUPS = [
 const bib = fs.readFileSync('publications.bib', 'utf8');
 const links = JSON.parse(fs.readFileSync('links.json','utf8'));
 const meta = JSON.parse(fs.readFileSync('categories.json','utf8'));
-const items = new Cite(bib).data;
+let items;
+
+try {
+  items = new Cite(bib).data;
+} catch (error) {
+  console.error(
+    'Failed to parse publications.bib.'
+  );
+  console.error(error.message);
+  process.exit(1);
+}
 const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const rawDate = item => item.issued?.['date-parts']?.[0] || [];
 const sortDate = item => { const a=rawDate(item); return (+a[0]||0)*10000+(+a[1]||0)*100+(+a[2]||0); };
