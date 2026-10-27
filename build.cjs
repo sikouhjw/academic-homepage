@@ -257,6 +257,17 @@ function build() {
   const dest='dist';fs.mkdirSync(dest,{recursive:true});
   fs.writeFileSync(path.join(dest,'index.html'),built);
   fs.copyFileSync('style.css',path.join(dest,'style.css'));
+
+  const assetsDir = 'assets';
+
+  if (fs.existsSync(assetsDir)) {
+    fs.cpSync(
+      assetsDir,
+      path.join(dest, 'assets'),
+      { recursive: true }
+    );
+  }
+
   fs.writeFileSync(path.join(dest,'.nojekyll'),'');
   console.log(`Built ${items.length} entries into ${dest}/index.html`);
 }
