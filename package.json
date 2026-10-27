@@ -1,9 +1,11 @@
 {
   "private": true,
-  "scripts": {"build": "node build.cjs"},
+  "scripts": {
+    "build": "node build.cjs"
+  },
   "dependencies": {
-    "@citation-js/core": "0.7.20",
-    "@citation-js/plugin-bibtex": "0.7.20",
-    "@citation-js/plugin-csl": "0.7.20"
+    "@citation-js/core": "0.7.21",
+    "@citation-js/plugin-bibtex": "0.7.21",
+    "@citation-js/plugin-csl": "0.7.21"
   }
 }
