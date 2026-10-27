@@ -1,10 +1,12 @@
 {
+  "he2024symbol": {
+    "badges": ["SCI"]
+  },
   "he2023yizhongjiyu": {
     "type": "patent",
     "number": "202211594152.X",
     "date": "2023-03-21",
-    "holders": "何骏炜 and 张浩川",
-    "badges": ["SCI"]
+    "holders": "何骏炜 and 张浩川"
   },
   "He2024Thesis": {
     "type": "thesis"
