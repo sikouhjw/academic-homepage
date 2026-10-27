@@ -36,16 +36,7 @@ body {
 /* Headings */
 h1, h2, h3 {
   font-family: var(--heading-font);
-  font-weight: 600;
-}
-
-.pub-citation {
-  font-family: var(--body-font);
-  font-weight: 400;
-}
-
-.pub-citation strong {
-  font-weight: 700;
+  line-height: 1.35;
 }
 
 h1 {
@@ -114,19 +105,30 @@ a:hover {
   border-bottom: 1px solid #f1f3f5;
 }
 
+.pub-number,
+.pub-citation {
+  font-family: var(--body-font);
+  font-size: 1.05rem;
+  font-weight: 400;
+  line-height: 1.7;
+}
+
 .pub-number {
-  font: inherit;
-  padding-top: 0;
   white-space: nowrap;
+  padding: 0;
+}
+
+.pub {
+  display: grid;
+  grid-template-columns: 2.5em minmax(0, 1fr);
+  column-gap: 0.2em;
+  align-items: start;
+  padding: 12px 0;
+  border-bottom: 1px solid #f1f3f5;
 }
 
 .pub-body {
   min-width: 0;
-}
-
-.pub-citation {
-  font-size: .95rem;
-  overflow-wrap: anywhere;
 }
 
 /* Citation.js generated content */
