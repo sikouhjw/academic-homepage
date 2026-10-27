@@ -6,7 +6,8 @@ require('@citation-js/plugin-bibtex');
 require('@citation-js/plugin-csl');
 
 const SETTINGS = {
-  citationStyle: 'ieee', // Standard CSL style for journal/conference/thesis
+  citationStyle: 'ieee',
+  citationMode: 'custom',
   myNames: ['Junwei He', 'J. He', '何骏炜'],
   showAutomaticDOILink: true,
   includeBibtexButton: true
@@ -55,6 +56,42 @@ function cat(i) {
   if (type==='thesis') return 'thesis';
   throw Error('Please set a category in categories.json for '+i.id+' (CSL type '+type+')');
 }
+function customText(item, type) {
+  const authors = esc(firstNames(item));
+  const title = esc(item.title || '');
+  const venue = esc(
+    item['container-title'] || ''
+  );
+
+  const year = rawDate(item)[0] || '';
+  const volume = item.volume || '';
+  const number = item.issue || '';
+  const pages = item.page || '';
+
+  let result = `${authors}, “${title},”`;
+
+  if (venue) {
+    result += ` <i>${venue}</i>`;
+  }
+
+  if (volume) {
+    result += `, vol. ${esc(volume)}`;
+  }
+
+  if (number) {
+    result += `, no. ${esc(number)}`;
+  }
+
+  if (pages) {
+    result += `, pp. ${esc(pages)}`;
+  }
+
+  if (year) {
+    result += `, ${esc(year)}`;
+  }
+
+  return result + '.';
+}
 function ieeeText(item) {
   const html = new Cite([item]).format('bibliography',{ format:'html',template:SETTINGS.citationStyle,lang:'en-US',nosort:true });
   return html.replace(/<div[^>]*class="[^"]*csl-left-margin[^"]*"[^>]*>[\s\S]*?<\/div>/g,'')
@@ -90,7 +127,15 @@ function build() {
     if(!subset.length) return '';
     const rows=subset.map((item, index)=>{
       const n = subset.length - index;
-      const text = ['patent','software'].includes(kind) ? specialText(item,meta[item.id]||{},kind):ieeeText(item);
+      let text;
+
+      if (['patent', 'software'].includes(kind)) {
+        text = specialText(item, meta[item.id] || {}, kind);
+      } else if (SETTINGS.citationMode === 'custom') {
+        text = customText(item, kind);
+      } else {
+        text = ieeeText(item);
+      }
       return `<article class="pub">
         <span class="pub-number">[${n}]</span>
         <div class="pub-body">
