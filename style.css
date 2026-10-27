@@ -1,7 +1,8 @@
-
 :root {
-  --body-font: "思源黑体", Arial, "微软雅黑", sans-serif;
-  --heading-font: "思源黑体", Arial, "微软雅黑", sans-serif;
+  --body-font: Arial, "Noto Sans CJK SC",
+               "Microsoft YaHei", sans-serif;
+  --heading-font: Arial, "Noto Sans CJK SC",
+                  "Microsoft YaHei", sans-serif;
 
   --text: #263342;
   --muted: #64748b;
@@ -35,7 +36,16 @@ body {
 /* Headings */
 h1, h2, h3 {
   font-family: var(--heading-font);
-  line-height: 1.35;
+  font-weight: 600;
+}
+
+.pub-citation {
+  font-family: var(--body-font);
+  font-weight: 400;
+}
+
+.pub-citation strong {
+  font-weight: 700;
 }
 
 h1 {
