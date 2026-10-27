@@ -36,8 +36,35 @@ try {
 const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const rawDate = item => item.issued?.['date-parts']?.[0] || [];
 const sortDate = item => { const a=rawDate(item); return (+a[0]||0)*10000+(+a[1]||0)*100+(+a[2]||0); };
-const person = p => p.literal || [p.given,p.family].filter(Boolean).join(' ');
-const firstNames = i => (i.author||[]).map(person).join(', ');
+
+function person(p) {
+  if (p.literal) return p.literal;
+
+  const given = String(p.given || '').trim();
+  const family = String(p.family || '').trim();
+
+  // 中文姓名保持全名
+  if (/[\u3400-\u9fff]/.test(given + family)) {
+    return given + family;
+  }
+
+  // 英文名缩写：Junwei He -> J. He
+  const initials = given
+    .split(/[\s-]+/)
+    .filter(Boolean)
+    .map(s => s[0].toUpperCase() + '.')
+    .join(' ');
+
+  return [initials, family].filter(Boolean).join(' ');
+}
+
+function firstNames(item) {
+  const names = (item.author || []).map(person);
+  if (names.length <= 2) return names.join(' and ');
+  return names.slice(0, -1).join(', ') +
+    ', and ' + names[names.length - 1];
+}
+
 const cleanDOI = raw => String(raw||'').trim().replace(/^doi:\s*/i,'').replace(/^https?:\/\/(?:dx\.)?doi\.org\//i,'');
 function validLink(label, value) {
   if (typeof value !== 'string' || !value.trim()) return null;
@@ -56,60 +83,113 @@ function cat(i) {
   if (type==='thesis') return 'thesis';
   throw Error('Please set a category in categories.json for '+i.id+' (CSL type '+type+')');
 }
+
+
 function customText(item, type) {
   const authors = esc(firstNames(item));
   const title = esc(item.title || '');
-  const venue = esc(
-    item['container-title'] || ''
-  );
+  const year = esc(rawDate(item)[0] || '');
 
-  const year = rawDate(item)[0] || '';
+  if (type === 'thesis') {
+    const school = esc(
+      item.publisher ||
+      item['publisher-place'] ||
+      ''
+    );
+
+    return `${authors}, “${title},” ` +
+      `${school}${school ? ', ' : ''}${year}.`;
+  }
+
+  const venue = esc(item['container-title'] || '');
+
   const volume = item.volume || '';
-  const number = item.issue || '';
+  const issue = item.issue || '';
   const pages = item.page || '';
 
-  let result = `${authors}, “${title},”`;
+  let result = `${authors}, “${title},” `;
 
-  if (venue) {
-    result += ` <i>${venue}</i>`;
+  if (type === 'conference') {
+    result += `in <i>${venue}</i>`;
+  } else {
+    result += `<i>${venue}</i>`;
   }
 
   if (volume) {
     result += `, vol. ${esc(volume)}`;
   }
-
-  if (number) {
-    result += `, no. ${esc(number)}`;
+  if (issue) {
+    result += `, no. ${esc(issue)}`;
   }
-
   if (pages) {
-    result += `, pp. ${esc(pages)}`;
+    const prefix = String(pages).includes('-')
+      ? 'pp.' : 'p.';
+    result += `, ${prefix} ${esc(pages)}`;
   }
-
   if (year) {
-    result += `, ${esc(year)}`;
+    result += `, ${year}`;
   }
 
-  return result + '.';
+  return result.replace(/[,\s]+$/, '') + '.';
 }
+
 function ieeeText(item) {
   const html = new Cite([item]).format('bibliography',{ format:'html',template:SETTINGS.citationStyle,lang:'en-US',nosort:true });
   return html.replace(/<div[^>]*class="[^"]*csl-left-margin[^"]*"[^>]*>[\s\S]*?<\/div>/g,'')
     .replace(/(<div[^>]*class="[^"]*csl-entry[^"]*"[^>]*>)\s*\[\s*1\s*\]/, '$1')
     .replace(/(<div[^>]*class="[^"]*csl-entry[^"]*"[^>]*>)\s*1\.\s*/, '$1');
 }
+
 function specialText(item, extra, type) {
-  // Patents and software entries are commonly stored as @misc with type specified in categories.json.
-  const names = esc(extra.holders || firstNames(item));
-  const title = esc(extra.title || item.title || 'Untitled');
-  const year = esc(extra.year || rawDate(item)[0] || '');
-  if (type==='patent') {
-    const id = extra.number ? `, ${esc(extra.number)}` : '';
-    const date = extra.date ? `, ${esc(extra.date)}` : (year ? `, ${year}` : '');
-    return `${names ? names+', ' : ''}“${title}”${id}${date}.`;
+  const title = esc(extra.title || item.title || '');
+  const names = esc(
+    extra.holders
+      ? extra.holders
+          .split(/\s+and\s+|[,，、]/i)
+          .map(s => s.trim())
+          .filter(Boolean)
+          .join(', ')
+      : firstNames(item)
+  );
+
+  const year = String(
+    extra.year || rawDate(item)[0] || ''
+  );
+
+  const sourceDate = String(extra.date || '');
+  const parts = sourceDate.match(/^(\d{4})-(\d{1,2})/);
+
+  // 例如 2026-05-21 -> 2026年05月
+  const date = parts
+    ? `${parts[1]}年${parts[2].padStart(2, '0')}月`
+    : sourceDate || year;
+
+  const number = esc(extra.number || '');
+
+  if (type === 'patent') {
+    return `${names}, “${title},” ` +
+      `${esc(date)}, 发明专利: ${number}.`;
   }
-  const id = extra.number ? `, Registration No. ${esc(extra.number)}` : '';
-  return `${names ? names+', ' : ''}“${title},” Software Copyright${id}${year ? ', '+year : ''}.`;
+
+  if (type === 'software') {
+    return `${names}, “${title},” ` +
+      `${esc(date)}, 软件著作: ${number}.`;
+  }
+
+  return '';
+}
+function badges(item) {
+  const list = meta[item.id]?.badges || [];
+
+  if (!Array.isArray(list)) {
+    throw new Error(
+      `badges must be an array: ${item.id}`
+    );
+  }
+
+  return list.map(label => {
+    return `<span class="pub-badge">${esc(label)}</span>`;
+  }).join('');
 }
 function actions(item) {
   const entry=links[item.id] || {};
@@ -140,7 +220,10 @@ function build() {
         <span class="pub-number">[${n}]</span>
         <div class="pub-body">
           <div class="pub-citation">${text}</div>
-          <div class="pub-links">${actions(item)}</div>
+          <div class="pub-links">
+            ${badges(item)}
+            ${actions(item)}
+          </div>
         </div>
       </article>`;
     }).join('\n');

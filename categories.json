@@ -2,14 +2,17 @@
   "he2023yizhongjiyu": {
     "type": "patent",
     "number": "202211594152.X",
-    "date": "2023",
-    "holders": "何骏炜 and 张浩川"
+    "date": "2023-03-21",
+    "holders": "何骏炜 and 张浩川",
+    "badges": ["SCI"]
   },
   "He2024Thesis": {
     "type": "thesis"
   },
   "gdut2023latex": {
     "type": "software",
-    "number": "2022SR1134390"
+    "number": "2022SR1134390",
+    "date": "2022-08-15",
+    "holders": "广东工业大学"
   }
 }
