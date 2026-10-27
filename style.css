@@ -1,76 +1,231 @@
+
 :root {
   --body-font: "思源黑体", Arial, "微软雅黑", sans-serif;
   --heading-font: "思源黑体", Arial, "微软雅黑", sans-serif;
+
   --text: #263342;
   --muted: #64748b;
   --accent: #205b91;
   --rule: #e3e9f0;
   --max-width: 850px;
 }
-* { box-sizing: border-box; }
-html { scroll-behavior: smooth; }
-body { margin: 0; background: #fff; color: var(--text); font: 16px/1.75 var(--body-font); }
-.page { max-width: var(--max-width); margin: 0 auto; padding: 52px 26px 32px; }
-h1, h2, h3 { font-family: var(--heading-font); line-height: 1.35; }
-h1 { font-size: 2rem; letter-spacing: -.02em; margin: 0 0 4px; }
-h2 { font-size: 1.35rem; padding-bottom: 6px; border-bottom: 1px solid var(--rule); margin: 0 0 14px; }
-h3 { font-size: 1.05rem; margin: 22px 0 10px; }
-section { margin-top: 32px; }
-p { margin: 8px 0 12px; }
-a { color: var(--accent); text-decoration: none; }
-a:hover { text-decoration: underline; }
-.subtitle, .hint { color: var(--muted); }
-.subtitle { margin: 0 0 8px; }
-.hint { font-size: .88rem; margin-top: -4px; }
-.contacts { display: flex; flex-wrap: wrap; gap: 18px; }
-.pub { display: grid; grid-template-columns: minmax(0, 1fr) auto; column-gap: 14px; padding: 12px 0; border-bottom: 1px solid #f1f3f5; }
-.pub-citation { font-size: .96rem; overflow-wrap: anywhere; }
-.pub-citation .csl-bib-body, .pub-citation .csl-entry { margin: 0; padding: 0; }
-.pub-citation .csl-left-margin { display: inline; margin-right: .5em; }
-.pub-citation .csl-right-inline { display: inline; }
-.pub-links { display: flex; justify-content: flex-end; align-items: flex-start; flex-wrap: wrap; gap: 6px; max-width: 230px; padding-top: 2px; }
-.pub-links a, .pub-links button { font: 12px/1.4 var(--heading-font); white-space: nowrap; color: var(--accent); background: #f4f7fa; border: 1px solid #dce5ed; border-radius: 4px; padding: 4px 7px; cursor: pointer; }
-.pub-links a:hover, .pub-links button:hover { background: #eaf1f8; text-decoration: none; }
-footer { color: var(--muted); font-size: .8rem; margin-top: 50px; border-top: 1px solid var(--rule); padding-top: 12px; }
-.error { color: #a11e31; }
-@media (max-width: 650px) { .page { padding: 30px 18px; } .pub { display: block; } .pub-links { justify-content: flex-start; margin-top: 7px; max-width: none; } h1 { font-size: 1.7rem; } }
 
-/* Version 2: globally numbered bibliography, fluid action links */
-.pub { display:grid; grid-template-columns: 3.2em minmax(0,1fr); gap:0.5em; align-items:start; }
-.pub-number { font:inherit; padding-top:0; white-space:nowrap; }
-.pub-body { min-width:0; }
-.pub-links { max-width:none; justify-content:flex-start; padding-top:7px; }
-.pub-citation .csl-left-margin { display:none; }
-.pub-citation .csl-right-inline { display:inline; }
-@media(max-width:650px) { .pub { display:grid; grid-template-columns:2.5em minmax(0,1fr); } }
-/* Static, build-time publication list */
-.pub-citation .csl-bib-body, .pub-citation .csl-entry {margin:0;padding:0;}
-.pub-citation .csl-left-margin {display:none;}
-.pub-citation .csl-right-inline {display:inline;}
-.pub-links:empty {display:none;}
-.pub-badge {
-  display: inline-block;
-  padding: 3px 8px;
-  border: 1px solid #c9ced6;
-  border-radius: 4px;
-  background: #f4f5f7;
-  color: #46515d;
-  font-size: 0.78rem;
-  font-weight: 500;
-  line-height: 1.4;
+/* Global */
+* {
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  margin: 0;
+  background: #fff;
+  color: var(--text);
+  font: 18px/1.7 var(--body-font);
+}
+
+.page {
+  max-width: var(--max-width);
+  margin: 0 auto;
+  padding: 52px 26px 32px;
+}
+
+/* Headings */
+h1, h2, h3 {
+  font-family: var(--heading-font);
+  line-height: 1.35;
+}
+
+h1 {
+  font-size: 2rem;
+  letter-spacing: -.02em;
+  margin: 0 0 4px;
+}
+
+h2 {
+  font-size: 1.4rem;
+  padding-bottom: 6px;
+  border-bottom: 1px solid var(--rule);
+  margin: 0 0 14px;
+}
+
+h3 {
+  font-size: 1.15rem;
+  margin: 22px 0 10px;
+}
+
+section {
+  margin-top: 32px;
+}
+
+p {
+  margin: 8px 0 12px;
+}
+
+/* Links */
+a {
+  color: var(--accent);
+  text-decoration: none;
+}
+
+a:hover {
+  text-decoration: underline;
+}
+
+.subtitle,
+.hint {
+  color: var(--muted);
+}
+
+.subtitle {
+  margin: 0 0 8px;
+}
+
+.hint {
+  font-size: .88rem;
+  margin-top: -4px;
+}
+
+.contacts {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 18px;
+}
+
+/* Publications */
+.pub {
+  display: grid;
+  grid-template-columns: 2.5em minmax(0, 1fr);
+  column-gap: 0.2em;
+  align-items: start;
+  padding: 12px 0;
+  border-bottom: 1px solid #f1f3f5;
+}
+
+.pub-number {
+  font: inherit;
+  padding-top: 0;
   white-space: nowrap;
 }
 
+.pub-body {
+  min-width: 0;
+}
+
+.pub-citation {
+  font-size: .95rem;
+  overflow-wrap: anywhere;
+}
+
+/* Citation.js generated content */
+.pub-citation .csl-bib-body,
+.pub-citation .csl-entry {
+  margin: 0;
+  padding: 0;
+}
+
+.pub-citation .csl-left-margin {
+  display: none;
+}
+
+.pub-citation .csl-right-inline {
+  display: inline;
+}
+
+/* Publication badges and links */
 .pub-links {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
+  justify-content: flex-start;
   gap: 6px;
+  max-width: none;
+  padding-top: 7px;
 }
 
+.pub-links:empty {
+  display: none;
+}
+
+.pub-links a,
+.pub-links button,
+.pub-links .pub-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  box-sizing: border-box;
+  min-height: 28px;
+  padding: 4px 8px;
+
+  font-family: var(--heading-font);
+  font-size: 14px;
+  font-weight: 500;
+  line-height: 18px;
+
+  border: 1px solid;
+  border-radius: 4px;
+  white-space: nowrap;
+  vertical-align: middle;
+}
+
+/* Clickable links */
+.pub-links a,
+.pub-links button {
+  color: var(--accent);
+  background: #f4f7fa;
+  border-color: #dce5ed;
+  cursor: pointer;
+}
+
+.pub-links a:hover,
+.pub-links button:hover {
+  background: #eaf1f8;
+  text-decoration: none;
+}
+
+/* Custom badges */
+.pub-links .pub-badge {
+  color: #46515d;
+  background: #f4f5f7;
+  border-color: #c9ced6;
+  cursor: default;
+}
+
+/* Email */
 .email {
   font-family: "Consolas", "SFMono-Regular",
                "Courier New", monospace;
-  font-size: 0.95em;
+  font-size: .95em;
   overflow-wrap: anywhere;
+}
+
+/* Footer */
+footer {
+  color: var(--muted);
+  font-size: .8rem;
+  margin-top: 50px;
+  border-top: 1px solid var(--rule);
+  padding-top: 12px;
+}
+
+.error {
+  color: #a11e31;
+}
+
+/* Responsive layout */
+@media (max-width: 650px) {
+  .page {
+    padding: 30px 18px;
+  }
+
+  h1 {
+    font-size: 1.7rem;
+  }
+
+  .pub {
+    grid-template-columns: 2.2em minmax(0, 1fr);
+  }
 }
