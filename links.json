@@ -1,0 +1,9 @@
+{
+  "ExampleJournal2026": {
+    "pdf": "https://example.com/example-paper.pdf",
+    "code": "https://github.com/example/example-code"
+  },
+  "ExampleConference2025": {
+    "project": "https://example.com/research-project"
+  }
+}
