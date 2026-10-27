@@ -34,3 +34,12 @@ a:hover { text-decoration: underline; }
 footer { color: var(--muted); font-size: .8rem; margin-top: 50px; border-top: 1px solid var(--rule); padding-top: 12px; }
 .error { color: #a11e31; }
 @media (max-width: 650px) { .page { padding: 30px 18px; } .pub { display: block; } .pub-links { justify-content: flex-start; margin-top: 7px; max-width: none; } h1 { font-size: 1.7rem; } }
+
+/* Version 2: globally numbered bibliography, fluid action links */
+.pub { display:grid; grid-template-columns: 3.2em minmax(0,1fr); gap:0.5em; align-items:start; }
+.pub-number { font:inherit; padding-top:0; white-space:nowrap; }
+.pub-body { min-width:0; }
+.pub-links { max-width:none; justify-content:flex-start; padding-top:7px; }
+.pub-citation .csl-left-margin { display:none; }
+.pub-citation .csl-right-inline { display:inline; }
+@media(max-width:650px) { .pub { display:grid; grid-template-columns:2.5em minmax(0,1fr); } }

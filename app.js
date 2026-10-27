@@ -1,98 +1,152 @@
-/* Academic homepage: BibTeX -> Citation.js -> formatted HTML.
-   To change reference style, replace 'ieee' with 'apa', 'vancouver', etc.
-   For your own CSL, register it with Cite.plugins.config.get('csl').templates.add(name, xml).
-*/
-const REFERENCE_STYLE = 'ieee';
-const MY_NAME = 'Your Name';
-const GROUP_NAMES = { journal: 'Journal Papers', conference: 'Conference Papers', preprint: 'Preprints', other: 'Other Publications' };
-
-function getCite() {
-  if (typeof require === 'function') return require('citation-js');
-  if (typeof Cite !== 'undefined') return Cite;
-  throw new Error('Citation.js failed to load from the CDN.');
+/* Academic Homepage v2. Citation.js 0.7.20 browser build. */
+const CONFIG = {
+  displayMode: 'chronological', // 'chronological' or 'grouped'
+  citationMode: 'ieee',         // 'ieee' or 'custom'
+  cslStyle: 'ieee',
+  myNames: ['Junwei He', 'J. He', '何骏炜'],
+  // Settings for custom formatter; this is not the official IEEE CSL format.
+  custom: { boldTitle: false, italicVenue: true, showDOI: false }
+};
+const GROUP_NAMES = {
+  journal: 'Journal Papers', conference: 'Conference Papers',
+  preprint: 'Preprints', thesis: 'Theses', other: 'Other Publications'
+};
+function E(tag, cls, value) {
+  const n=document.createElement(tag);
+  if(cls) n.className=cls;
+  if(value!==undefined) n.textContent=value;
+  return n;
 }
-function safeURL(raw) {
-  try { const u = new URL(String(raw), location.href); return ['https:', 'http:'].includes(u.protocol) ? u.href : null; }
+function safeUrl(value) {
+  if(!value) return null;
+  try { const u=new URL(String(value), location.href); return /^(https?:)$/.test(u.protocol)?u.href:null; }
   catch { return null; }
 }
-function el(tag, className, text) {
-  const node = document.createElement(tag);
-  if (className) node.className = className;
-  if (text !== undefined) node.textContent = text;
-  return node;
+function doiUrl(value) {
+  if(!value) return null;
+  const v=String(value).trim();
+  const doi=v.replace(/^https?:\/\/(?:dx\.)?doi\.org\//i,'').replace(/^doi:\s*/i,'');
+  return safeUrl('https://doi.org/'+encodeURI(doi));
 }
-function groupOf(item) {
-  if (item.type === 'article-journal') return 'journal';
-  if (item.type === 'paper-conference' || item.type === 'chapter' || item.type === 'entry') return 'conference';
-  if (item.type === 'article' || item.type === 'manuscript' || item.type === 'report') return 'preprint';
+function year(item) { return Number(item.issued?.['date-parts']?.[0]?.[0] || 0); }
+function dateKey(item) {
+  const d=item.issued?.['date-parts']?.[0] || [];
+  return (Number(d[0])||0)*10000 + (Number(d[1])||0)*100+(Number(d[2])||0);
+}
+function group(item) {
+  if(item.type==='article-journal') return 'journal';
+  if(item.type==='paper-conference') return 'conference';
+  if(item.type==='thesis') return 'thesis';
+  if(['article','manuscript','report','posted-content'].includes(item.type)) return 'preprint';
   return 'other';
 }
-function yearOf(item) {
-  const parts = item.issued && item.issued['date-parts'];
-  return parts?.[0]?.[0] || 0;
+function addAction(root,label,raw) {
+  const url=label.toLowerCase()==='doi' ? doiUrl(raw) : safeUrl(raw);
+  if(!url) return;
+  const a=E('a','',label); a.href=url; a.target='_blank'; a.rel='noopener noreferrer';
+  root.append(a);
 }
-function addLink(container, text, url) {
-  const validated = safeURL(url);
-  if (!validated) return;
-  const anchor = el('a', '', text);
-  anchor.href = validated;
-  anchor.target = '_blank';
-  anchor.rel = 'noopener noreferrer';
-  container.append(anchor);
-}
-function formatEntry(Cite, item) {
-  const html = new Cite([item]).format('bibliography', {
-    format: 'html', template: REFERENCE_STYLE, lang: 'en-US'
+function renderIeee(Cite,item) {
+  const wrapper=E('div','pub-citation');
+  const rendered=new Cite([item]).format('bibliography', {
+    format:'html',template:CONFIG.cslStyle,lang:'en-US',nosort:true
   });
-  const node = el('div', 'pub-citation');
-  node.innerHTML = html; // HTML produced by the citation formatter from the locally maintained BibTeX file.
-  return node;
+  wrapper.innerHTML=rendered;
+  // Citation.js treats each single-item bibliography as [1]. Remove CSL numbering;
+  // the global descending number is rendered separately by the site.
+  wrapper.querySelectorAll('.csl-left-margin').forEach(x=>x.remove());
+  const entry=wrapper.querySelector('.csl-entry');
+  if(entry) {
+    entry.innerHTML=entry.innerHTML.replace(/^\s*(?:\[\s*1\s*\]\s*|<span[^>]*>\s*\[\s*1\s*\]\s*<\/span>\s*)/i,'');
+  }
+  return wrapper;
 }
-async function renderPublications() {
-  const root = document.getElementById('publication-list');
+function personName(p) {
+  if(p.literal) return p.literal;
+  return [p.given,p.family].filter(Boolean).join(' ');
+}
+function renderCustom(item) {
+  const root=E('div','pub-citation');
+  const authors=(item.author||[]).map(personName);
+  const names=authors.map(name=>{
+    const n=E(CONFIG.myNames.some(s=>s.toLowerCase()===name.toLowerCase())?'strong':'span','',name);
+    return n;
+  });
+  names.forEach((n,i)=>{
+    if(i) root.append(document.createTextNode(i===names.length-1 ? (names.length===2?' and ':', and ') : ', '));
+    root.append(n);
+  });
+  if(names.length) root.append(document.createTextNode(', '));
+  const title=E(CONFIG.custom.boldTitle?'strong':'span','', '“'+(item.title||'Untitled')+'”');
+  root.append(title);
+  const venue=item['container-title'] || item.publisher || '';
+  if(venue) {
+    root.append(document.createTextNode(', '));
+    root.append(E(CONFIG.custom.italicVenue?'em':'span','',Array.isArray(venue)?venue.join(', '):venue));
+  }
+  const details=[];
+  if(item.volume) details.push('vol. '+item.volume);
+  if(item.issue) details.push('no. '+item.issue);
+  if(item.page) details.push('pp. '+String(item.page).replace(/--/g,'–'));
+  if(year(item)) details.push(String(year(item)));
+  if(details.length) root.append(document.createTextNode(', '+details.join(', ')));
+  if(CONFIG.custom.showDOI && item.DOI) root.append(document.createTextNode(', doi: '+item.DOI));
+  root.append(document.createTextNode('.'));
+  return root;
+}
+function createRow(Cite,item,index,links){
+  const row=E('article','pub');
+  const num=E('span','pub-number','['+index+']');
+  const citation=CONFIG.citationMode==='custom'?renderCustom(item):renderIeee(Cite,item);
+  const actions=E('div','pub-links');
+  const more=links[item.id] || {};
+  // Extra link labels in links.json are fully dynamic, case-insensitive, including arXiv/WOS.
+  const combined={...more};
+  const hasDOI=Object.keys(combined).some(k=>k.toLowerCase()==='doi');
+  if(item.DOI && !hasDOI) combined.DOI=item.DOI;
+  if(item.URL && !Object.keys(combined).some(k=>k.toLowerCase()==='paper')) combined.Paper=item.URL;
+  Object.entries(combined).forEach(([label,url])=>addAction(actions,label,url));
+  const copy=E('button','','BibTeX'); copy.type='button';
+  copy.addEventListener('click',async()=>{
+    const b=new Cite([item]).format('bibtex');
+    try { await navigator.clipboard.writeText(b); copy.textContent='Copied'; }
+    catch { window.prompt('Copy BibTeX:',b); }
+  });
+  actions.append(copy);
+  const body=E('div','pub-body'); body.append(citation,actions);
+  row.append(num,body);
+  return row;
+}
+async function main(){
+  const root=document.getElementById('publication-list');
   try {
-    const [bibResponse, linkResponse] = await Promise.all([
-      fetch('./publications.bib', { cache: 'no-cache' }),
-      fetch('./links.json', { cache: 'no-cache' })
+    const [br,lr]=await Promise.all([
+      fetch('./publications.bib',{cache:'no-store'}),
+      fetch('./links.json',{cache:'no-store'})
     ]);
-    if (!bibResponse.ok) throw new Error('Cannot load publications.bib (HTTP ' + bibResponse.status + ').');
-    if (!linkResponse.ok) throw new Error('Cannot load links.json (HTTP ' + linkResponse.status + ').');
-    const bib = await bibResponse.text();
-    const links = await linkResponse.json();
-    const Cite = getCite();
-    const entries = new Cite(bib).data;
-    entries.sort((a,b) => yearOf(b) - yearOf(a) || String(a.title || '').localeCompare(String(b.title || '')));
+    if(!br.ok) throw Error('publications.bib HTTP '+br.status);
+    if(!lr.ok) throw Error('links.json HTTP '+lr.status);
+    const [bib,links]=await Promise.all([br.text(),lr.json()]);
+    const Cite=window.Cite;
+    if(!Cite) throw Error('Citation.js not available. Check the CDN.');
+    const entries=new Cite(bib).data;
+    entries.sort((a,b)=>dateKey(b)-dateKey(a)||String(a.title||'').localeCompare(String(b.title||'')));
     root.replaceChildren();
-    if (!entries.length) { root.append(el('p', '', 'No publications yet.')); return; }
-    for (const group of ['journal','conference','preprint','other']) {
-      const items = entries.filter(x => groupOf(x) === group);
-      if (!items.length) continue;
-      root.append(el('h3', '', GROUP_NAMES[group]));
-      for (const item of items) {
-        const row = el('article', 'pub');
-        const citation = formatEntry(Cite, item);
-        const actions = el('div', 'pub-links');
-        const more = links[item.id] || {};
-        if (more.pdf) addLink(actions, 'PDF', more.pdf);
-        if (item.DOI) addLink(actions, 'DOI', 'https://doi.org/' + item.DOI);
-        else if (item.URL) addLink(actions, 'Paper', item.URL);
-        if (more.code) addLink(actions, 'Code', more.code);
-        if (more.project) addLink(actions, 'Project', more.project);
-        const bibButton = el('button', '', 'BibTeX');
-        bibButton.type = 'button';
-        bibButton.addEventListener('click', async () => {
-          const bibOutput = new Cite([item]).format('bibtex');
-          try { await navigator.clipboard.writeText(bibOutput); bibButton.textContent = 'Copied'; }
-          catch { window.prompt('Copy BibTeX:', bibOutput); }
-        });
-        actions.append(bibButton);
-        row.append(citation, actions);
-        root.append(row);
+    const numbered=new Map(entries.map((e,i)=>[e.id,entries.length-i]));
+    if(CONFIG.displayMode==='grouped') {
+      for(const type of Object.keys(GROUP_NAMES)) {
+        const subset=entries.filter(e=>group(e)===type);
+        if(!subset.length) continue;
+        root.append(E('h3','',GROUP_NAMES[type]));
+        subset.forEach(e=>root.append(createRow(Cite,e,numbered.get(e.id),links)));
       }
+    } else {
+      entries.forEach(e=>root.append(createRow(Cite,e,numbered.get(e.id),links)));
     }
-  } catch (error) {
-    root.replaceChildren(el('p', 'error', 'Could not load publications: ' + error.message));
-    console.error(error);
+    if(!entries.length) root.append(E('p','','No publications found.'));
+  } catch(err) {
+    root.replaceChildren(E('p','error','Cannot display publications: '+err.message));
+    console.error(err);
   }
 }
-document.addEventListener('DOMContentLoaded', renderPublications);
+document.addEventListener('DOMContentLoaded',main);
