@@ -37,18 +37,23 @@ const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt
 const rawDate = item => item.issued?.['date-parts']?.[0] || [];
 const sortDate = item => { const a=rawDate(item); return (+a[0]||0)*10000+(+a[1]||0)*100+(+a[2]||0); };
 
+const MY_NAMES = [
+  'J. He',
+  'Junwei He',
+  'He Junwei',
+  '何骏炜'
+];
+
 function person(p) {
-  if (p.literal) return p.literal;
+  if (p.literal) return String(p.literal);
 
   const given = String(p.given || '').trim();
   const family = String(p.family || '').trim();
 
-  // 中文姓名保持全名
   if (/[\u3400-\u9fff]/.test(given + family)) {
     return given + family;
   }
 
-  // 英文名缩写：Junwei He -> J. He
   const initials = given
     .split(/[\s-]+/)
     .filter(Boolean)
@@ -59,8 +64,22 @@ function person(p) {
 }
 
 function firstNames(item) {
-  const names = (item.author || []).map(person);
-  if (names.length <= 2) return names.join(' and ');
+  const names = (item.author || []).map(p => {
+    const name = person(p);
+    const normalized = name.replace(/\s+/g, ' ').trim();
+
+    const isMine = MY_NAMES.some(
+      n => n.toLowerCase() === normalized.toLowerCase()
+    );
+
+    const safeName = esc(name);
+
+    return isMine ? `<strong>${safeName}</strong>` : safeName;
+  });
+
+  if (names.length <= 1) return names.join('');
+  if (names.length === 2) return names.join(' and ');
+
   return names.slice(0, -1).join(', ') +
     ', and ' + names[names.length - 1];
 }
@@ -86,7 +105,7 @@ function cat(i) {
 
 
 function customText(item, type) {
-  const authors = esc(firstNames(item));
+  const authors = firstNames(item);
   const title = esc(item.title || '');
   const year = esc(rawDate(item)[0] || '');
 

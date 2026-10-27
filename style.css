@@ -67,3 +67,10 @@ footer { color: var(--muted); font-size: .8rem; margin-top: 50px; border-top: 1p
   align-items: center;
   gap: 6px;
 }
+
+.email {
+  font-family: "Consolas", "SFMono-Regular",
+               "Courier New", monospace;
+  font-size: 0.95em;
+  overflow-wrap: anywhere;
+}
