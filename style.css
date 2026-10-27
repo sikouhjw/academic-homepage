@@ -43,3 +43,8 @@ footer { color: var(--muted); font-size: .8rem; margin-top: 50px; border-top: 1p
 .pub-citation .csl-left-margin { display:none; }
 .pub-citation .csl-right-inline { display:inline; }
 @media(max-width:650px) { .pub { display:grid; grid-template-columns:2.5em minmax(0,1fr); } }
+/* Static, build-time publication list */
+.pub-citation .csl-bib-body, .pub-citation .csl-entry {margin:0;padding:0;}
+.pub-citation .csl-left-margin {display:none;}
+.pub-citation .csl-right-inline {display:inline;}
+.pub-links:empty {display:none;}

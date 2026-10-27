@@ -1,22 +1,23 @@
-# Academic Homepage
+# Academic Homepage v3: static, GitHub Actions build
 
-Minimal academic website for GitHub Pages with BibTeX and Citation.js.
+No browser-side Citation.js or CDN. GitHub Actions installs the build dependencies at deploy time, generates a static `dist/index.html`, and deploys that folder.
 
-## Publish
-1. Create a public GitHub repository named `academic-homepage` and initialize it with README.
-2. Upload all files in this directory to the repository root (including `.nojekyll`).
-3. Visit Settings > Pages > Build and deployment > Deploy from a branch, select `main`, `/(root)`, and Save.
-4. Visit `https://YOUR-USERNAME.github.io/academic-homepage/`.
+## Deployment
+1. Upload the **contents of this folder** to the root of your GitHub Pages repository, including `.github/workflows/pages.yml`. The hidden `.github` directory must be preserved.
+2. Go to **Settings → Pages → Build and deployment → Source → GitHub Actions** (not Deploy from a branch).
+3. Open **Actions** and inspect `Build and deploy academic homepage` for success. Open your Pages URL.
 
-## Edit
-- `index.html`: bio, name, affiliations, contacts, sections.
-- `style.css`: fonts, colors, width, sizes.
-- `publications.bib`: publication metadata, with stable BibTeX citekeys.
-- `links.json`: PDF/code/project links, keyed by BibTeX citekey.
-- `app.js`: reference style (`REFERENCE_STYLE`), grouping, sorting, button generation.
+## Maintenance
+- `publications.bib`: BibTeX records. `@article` -> Journal Papers, `@inproceedings` -> Conference Papers, `@phdthesis` or `@mastersthesis` -> Theses.
+- `categories.json`: override type by BibTeX key. Required for patents and software: use `@misc{Key,...}` with type `patent` or `software`. Optional `number`, `date`, `holders`, `title`, `year` fields for those types.
+- `links.json`: optional buttons, with labels as JSON keys. DOI can be a bare DOI string. Match BibTeX keys exactly.
+- Order is grouped journal/conference/patent/thesis/software; newest first *within each category*. Global numbers descend from N to 1 in display order.
+- `build.cjs`: customize the output style: CSL IEEE for articles, proceedings, and theses, dedicated formatters for patents and software; edit `specialText` to change those styles. For custom CSL styles, register a CSL template with Citation.js build-side plugin and select it in `SETTINGS`.
+- `index.html` and `style.css`: layout/fonts. Never remove the `PUBLICATIONS_START` and `PUBLICATIONS_END` markers.
 
-Sample DOIs and links are **fictional placeholders**, not real papers.
-
-Citation.js uses a pinned CDN version: 0.7.20. It requires an internet connection to the CDN when the page is loaded. If blocked, download and host the bundle locally.
-
-To preview locally, serve the directory using a static HTTP server; opening index.html via file:// will block fetch in many browsers. No local setup is needed to publish through GitHub.
+## Caveats
+- All sample BibTeX data, codes, and links are fictional: replace before publishing.
+- GitHub Actions still needs npm network availability **during builds only**; visitors need no Citation.js CDN.
+- `@misc` without category override intentionally fails the build so achievements aren't silently mislabeled.
+- Patent and software entries do not use IEEE CSL. They use an editable manual formatter.
+- This archive hasn't been end-to-end tested against npm/GitHub because package-registry access is not available in the build environment used to prepare it.
